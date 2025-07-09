@@ -35,8 +35,8 @@ The API supports cross-origin requests via **Flask-CORS**.
 1. **Clone the repo**
 
 ```bash
-git clone https://github.com/yourusername/your-repo-name.git
-cd your-repo-name
+git clone https://github.com/Falgit1/Mask_Generation.git
+cd Falgit1
 ```
 
 2. **Install dependencies**
