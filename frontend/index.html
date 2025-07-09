@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Segmentation App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+      /* Frosted Glass Navbar */
+      .navbar-glass {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      /* Gradient Button */
+      .btn-gradient {
+        background: linear-gradient(45deg, #4f46e5, #a855f7);
+        transition: all 0.3s ease;
+      }
+      .btn-gradient:hover {
+        background: linear-gradient(45deg, #4338ca, #9333ea);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-6"
+  >
+    <!-- Navbar -->
+    <nav class="navbar-glass w-full py-4 px-6 text-center">
+      <h1 class="text-3xl font-bold">Image Segmentation</h1>
+    </nav>
+
+    <!-- Upload Section -->
+    <div
+      class="max-w-2xl bg-white bg-opacity-10 rounded-lg p-6 text-center mt-8 shadow-lg"
+    >
+      <h2 class="text-xl font-semibold text-gray-300 mb-4">
+        Upload an Image for Segmentation
+      </h2>
+
+      <input
+        type="file"
+        id="imageInput"
+        class="hidden"
+        onchange="handleImageChange(event)"
+      />
+      <label
+        for="imageInput"
+        class="btn-gradient inline-block text-white py-2 px-6 rounded-lg font-semibold cursor-pointer"
+      >
+        Select Image
+      </label>
+
+      <button
+        class="btn-gradient inline-block text-white py-2 px-6 rounded-lg font-semibold cursor-pointer"
+        onclick="handleUpload()"
+      >
+        Upload
+      </button>
+    </div>
+    <!-- Image Display -->
+    <div class="flex flex-col items-center mt-6">
+      <div class="flex gap-4 justify-center">
+        <div class="text-center">
+          <h3 class="text-lg font-semibold text-gray-300 mb-2">
+            Original Image
+          </h3>
+          <img
+            id="originalImage"
+            class="hidden w-64 h-64 rounded-lg shadow-md"
+            alt="Original Image"
+          />
+        </div>
+        <div class="text-center">
+          <h3 class="text-lg font-semibold text-gray-300 mb-2">
+            Predicted Mask
+          </h3>
+          <img
+            id="predictedMask"
+            class="hidden w-64 h-64 rounded-lg shadow-md"
+            alt="Segmented Mask"
+          />
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function handleImageChange(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const imgElement = document.getElementById("originalImage");
+          imgElement.src = URL.createObjectURL(file);
+          imgElement.classList.remove("hidden"); // Un-hide the image
+        }
+      }
+
+      async function handleUpload() {
+        const fileInput = document.getElementById("imageInput");
+        if (!fileInput.files.length) {
+          alert("Please select an image first!");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("image", fileInput.files[0]);
+
+        const response = await fetch("http://127.0.0.1:5000/predict", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+        const maskImage = document.getElementById("predictedMask");
+        maskImage.src = `data:image/png;base64,${data.mask}`;
+        maskImage.classList.remove("hidden"); // Show mask after upload
+      }
+
+      // GSAP Animations
+      // GSAP Animations
+      gsap.fromTo(
+        "h1",
+        { y: -50, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1.5 }
+      );
+      gsap.fromTo(
+        "label",
+        { scale: 0.8, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 1, delay: 0.5 }
+      );
+      gsap.fromTo(
+        "button",
+        { scale: 0.8, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 1, delay: 0.7 }
+      );
+    </script>
+  </body>
+</html>
